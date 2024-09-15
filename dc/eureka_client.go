@@ -36,14 +36,18 @@ type eurekaClient struct {
 	stopHbChn      chan struct{}
 }
 
-func (c *eurekaClient) Connect(options ...interface{}) error {
+func (c *eurekaClient) Connect(options ...interface{}) (chan struct{}, error) {
+
+	if c.running {
+		return nil, nil
+	}
 
 	c.mutex.Lock()
 	c.running = true
 	c.mutex.Unlock()
 
 	if c.config.url == "" {
-		return fmt.Errorf("eureka url is empty")
+		return nil, fmt.Errorf("eureka url is empty")
 	}
 	c.client = e.NewClient([]string{c.config.url})
 
@@ -62,7 +66,7 @@ func (c *eurekaClient) Connect(options ...interface{}) error {
 
 	go c.handleSignal()
 
-	return nil
+	return nil, nil
 }
 func (c *eurekaClient) Services() *Remotes {
 
@@ -89,7 +93,6 @@ func (c *eurekaClient) Services() *Remotes {
 			result.Add(app.Name, r)
 		}
 	}
-
 	return &result
 
 }
@@ -110,6 +113,7 @@ func (c *eurekaClient) refresh() {
 			c.running = false
 			c.logger.Info("stop refresh")
 			close(c.stopRefreshChn)
+			c.applications = nil
 			return
 		case <-timer.C:
 			apps, err := c.client.GetApplications()

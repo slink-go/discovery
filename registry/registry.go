@@ -39,6 +39,23 @@ func NewServiceRegistry(options ...ServiceRegistryOption) ServiceRegistry {
 
 	return &registry
 }
+func (sr *serviceRegistry) Start() {
+	signal.Notify(sr.sigChn, syscall.SIGINT, syscall.SIGTERM, syscall.SIGKILL)
+
+	for _, client := range sr.clients {
+		client.Connect()
+		if client != nil && client.NotificationsChn() != nil {
+			go func() {
+				for range client.NotificationsChn() {
+					sr.logger.Debug(" > update detected... refreshing")
+					sr.doRefresh()
+				}
+			}()
+		}
+	}
+
+	go sr.refresh()
+}
 
 func (sr *serviceRegistry) refresh() {
 	timer := time.NewTimer(sr.refreshDelay)
@@ -47,6 +64,7 @@ func (sr *serviceRegistry) refresh() {
 		case <-sr.sigChn:
 			sr.logger.Info("stop")
 			timer.Stop()
+			sr.serviceDirectory = nil
 			return
 		case <-timer.C:
 			sr.doRefresh()
@@ -102,25 +120,6 @@ func (sr *serviceRegistry) filterRemotes(source map[string]map[string]dc.Remote)
 	return remotes
 }
 
-func (sr *serviceRegistry) Start() {
-	signal.Notify(sr.sigChn, syscall.SIGINT, syscall.SIGTERM, syscall.SIGKILL)
-	for _, client := range sr.clients {
-		if client != nil && client.NotificationsChn() != nil {
-			go func() {
-				for range client.NotificationsChn() {
-					sr.logger.Trace(" > update detected... refreshing")
-					sr.doRefresh()
-				}
-			}()
-		}
-	}
-	go sr.refresh()
-}
-func (sr *serviceRegistry) AddSource(dc dc.Client) {
-	if dc != nil {
-		sr.clients = append(sr.clients, dc)
-	}
-}
 func (sr *serviceRegistry) Get(serviceName string) (string, error) {
 	sr.mutex.RLock()
 	defer sr.mutex.RUnlock()
@@ -140,3 +139,9 @@ func (sr *serviceRegistry) List() []dc.Remote {
 	slices.SortFunc(result, dc.Remote.Compare)
 	return result
 }
+
+//	func (sr *serviceRegistry) AddSource(dc dc.Client) {
+//		if dc != nil {
+//			sr.clients = append(sr.clients, dc)
+//		}
+//	}

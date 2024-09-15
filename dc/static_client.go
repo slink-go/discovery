@@ -74,8 +74,8 @@ func NewStaticClient(services map[string][]Remote) Client {
 	}
 }
 
-func (c *Provider) Connect(options ...interface{}) error {
-	return nil
+func (c *Provider) Connect(options ...interface{}) (chan struct{}, error) {
+	return nil, nil
 }
 func (c *Provider) Services() *Remotes {
 
