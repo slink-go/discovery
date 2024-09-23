@@ -3,6 +3,7 @@ module github.com/slink-go/discovery
 go 1.23.1
 
 require (
+	github.com/slink-go/disco v0.0.11
 	github.com/slink-go/disco-go v0.0.19
 	github.com/slink-go/disco/common v0.0.8
 	github.com/slink-go/go-eureka-client v1.1.1
@@ -21,5 +22,5 @@ require (
 	github.com/slink-go/httpclient v0.0.8 // indirect
 	github.com/slink-go/logger v0.0.1 // indirect
 	github.com/xhit/go-str2duration/v2 v2.1.0 // indirect
-	golang.org/x/sys v0.21.0 // indirect
+	golang.org/x/sys v0.25.0 // indirect
 )
