@@ -4,11 +4,10 @@ go 1.23.1
 
 require (
 	github.com/slink-go/disco v0.0.11
-	github.com/slink-go/disco-go v0.0.19
-	github.com/slink-go/disco/common v0.0.8
+	github.com/slink-go/disco-go v0.0.21
 	github.com/slink-go/go-eureka-client v1.1.1
 	github.com/slink-go/logging v0.0.2
-	github.com/slink-go/util v0.0.3
+	github.com/slink-go/util v0.0.4
 	gopkg.in/yaml.v3 v3.0.1
 )
 
