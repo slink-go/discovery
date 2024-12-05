@@ -45,13 +45,17 @@ func (c *eurekaConfig) WithAuth(login, password string) *eurekaConfig {
 	return c
 }
 func (c *eurekaConfig) WithHeartBeat(interval time.Duration) *eurekaConfig {
-	c.register = true
-	c.heartBeatInterval = interval
+	if interval > 0 {
+		c.register = true
+		c.heartBeatInterval = interval
+	}
 	return c
 }
 func (c *eurekaConfig) WithRefresh(interval time.Duration) *eurekaConfig {
-	c.fetch = true
-	c.refreshInterval = interval
+	if interval > 0 {
+		c.fetch = true
+		c.refreshInterval = interval
+	}
 	return c
 }
 func (c *eurekaConfig) WithApplication(name string) *eurekaConfig {
